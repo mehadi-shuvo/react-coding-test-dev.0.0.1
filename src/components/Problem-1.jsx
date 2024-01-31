@@ -3,15 +3,48 @@ import React, { useState } from "react";
 const Problem1 = () => {
   const [show, setShow] = useState("all");
 
+  const [showTask, setShowTask] = useState([]);
+  //   const [activeTasks, setActiveTasks] = useState([]);
+
   const handelSubmit = (e) => {
     e.preventDefault();
     const name = e.target.name.value;
     const status = e.target.status.value;
-
-    console.log({ name, status });
+    const data = { name, status };
+    const storedData = localStorage.getItem("tasks");
+    const storedArray = JSON.parse(storedData);
+    if (storedArray) {
+      storedArray.push(data);
+      const tasksString = JSON.stringify(storedArray);
+      localStorage.setItem("tasks", tasksString);
+    } else {
+      const tasksString = JSON.stringify([data]);
+      localStorage.setItem("tasks", tasksString);
+    }
+    // console.log(storedArray);
   };
 
   const handleClick = (val) => {
+    const storedData = localStorage.getItem("tasks");
+    const storedArray = JSON.parse(storedData);
+    if (val === "all") {
+      const statusOrder = ["active", "completed", "pending", "archived"];
+      storedArray.sort(
+        (a, b) => statusOrder.indexOf(a.status) - statusOrder.indexOf(b.status)
+      );
+      setShowTask(storedArray);
+      //   console.log(storedArray);
+    } else if (val === "active") {
+      const activeTasks = storedArray.filter(
+        (task) => task.status === "active"
+      );
+      setShowTask(activeTasks);
+    } else if (val === "completed") {
+      const completedTasks = storedArray.filter(
+        (task) => task.status === "completed"
+      );
+      setShowTask(completedTasks);
+    }
     setShow(val);
   };
 
@@ -85,7 +118,14 @@ const Problem1 = () => {
                 <th scope="col">Status</th>
               </tr>
             </thead>
-            <tbody></tbody>
+            <tbody>
+              {showTask.map((task) => (
+                <tr key={task.name}>
+                  <td>{task.name}</td>
+                  <td>{task.status}</td>
+                </tr>
+              ))}
+            </tbody>
           </table>
         </div>
       </div>
